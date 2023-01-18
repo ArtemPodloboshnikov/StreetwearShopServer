@@ -4,15 +4,32 @@ import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document, ObjectId } from "mongoose";
 
 export enum Colors {
-    Grey,
-    White,
-    Black,
-    Yellow,
-    Blue,
-    Green,
-    Pink,
-    Purple,
-    Red
+    RED = 'красный',
+    BLUE = 'синий',
+    WHITE = 'белый',
+    GREEN = 'зелёный',
+    BLACK = 'чёрный',
+    YELLOW = 'жёлтый',
+    ORANGE = 'оранжевый',
+    VIOLET = 'фиолетовый',
+    BROWN = 'коричневый',
+    GRAY = 'серый',
+    PINK = 'розовый',
+    TURQUOISE = 'бирюзовый'
+}
+
+export enum Sizes {
+    XXL = 'XXL',
+    XL = 'XL',
+    L = 'L',
+    M = 'M',
+    S = 'S',
+    XS = 'XS'
+}
+
+export enum Gender {
+    MALE = 'мужчина',
+    FEMALE = 'женщина'
 }
 
 // export type ProductDocument = ProductModel & Document
@@ -49,9 +66,6 @@ export enum Colors {
 export interface ProductModel extends Base {}
 
 export class ProductModel extends TimeStamps {
-    @prop()
-    title: string;
-
     @prop({ unique: true })
     code: string;
 
@@ -62,11 +76,29 @@ export class ProductModel extends TimeStamps {
     brand: string;
 
     @prop()
-    price: number;
-
-    @prop({ enum: Colors})
-    color: Colors;
+    model: string;
 
     @prop()
-    size: string;
+    material: string;
+
+    @prop()
+    country: string;
+
+    @prop()
+    category: string;
+
+    @prop()
+    subcategory: string;
+
+    @prop()
+    gender: Gender;
+
+    @prop()
+    price: number;
+
+    @prop({ enum: Colors, type: String})
+    colors: Colors[];
+
+    @prop({ enum: Sizes, type: String })
+    sizes: Sizes[];
 }

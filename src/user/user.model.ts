@@ -8,5 +8,14 @@ export class UserModel extends TimeStamps {
     phone: string;
 
     @prop()
-    pwdHash: string
+    pwdHash: string;
+
+    @prop()
+    address: string;
+
+    @prop()
+    flat: string;
+
+    @prop()
+    name: string
 }

@@ -13,7 +13,7 @@ import {
    UseGuards,
    NotFoundException
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
+import { JwtAuthGuard } from 'src/user/guards/jwt.guard';
 import { CreateProductDto } from './dto/create-product.dto';
 import { FindProductDto } from './dto/find-product.dto';
 import { PRODUCT_NOT_FOUND_ERROR, UNIQUE_KEY_CODE_ERROR } from './product.constants';
@@ -28,7 +28,7 @@ export class ProductController {
    @UsePipes(new ValidationPipe())
    @Post('create')
    async create(@Body() dto: CreateProductDto) {
-      this.productService.create(dto);
+      return this.productService.create(dto);
    }
 
    @Get(':id')
@@ -38,6 +38,8 @@ export class ProductController {
       if (!product) {
          throw new NotFoundException(PRODUCT_NOT_FOUND_ERROR)
       }
+
+      return product;
    }
 
    @UseGuards(JwtAuthGuard)

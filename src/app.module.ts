@@ -5,7 +5,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config"
 import { ProductModule } from './product/product.module';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { getMongoConfig } from './configs/mongo.config';
-import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 import { FilesModule } from './files/files.module';
 
 @Module({
@@ -17,7 +17,7 @@ import { FilesModule } from './files/files.module';
       useFactory: getMongoConfig
     }),
     ProductModule,
-    AuthModule,
+    UserModule,
     FilesModule
   ],
   controllers: [AppController],

@@ -23,8 +23,8 @@ export class FilesService {
         return response;
     }
 
-    convertToWebP(file: Buffer): Promise<Buffer> {
-        return sharp(file).webp().toBuffer();
+    convertToAvif(file: Buffer): Promise<Buffer> {
+        return sharp(file).avif().toBuffer();
     }
 
     async delete(pathToFile: string): Promise<Boolean> {
