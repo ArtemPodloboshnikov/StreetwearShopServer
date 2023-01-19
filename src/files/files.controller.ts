@@ -1,4 +1,4 @@
-import { BadRequestException, Controller, Delete, HttpCode, Param, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, HttpCode, Param, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/user/guards/jwt.guard';
 import { FileElementResponse } from './dto/file-element.response';
@@ -16,17 +16,18 @@ export class FilesController {
     @HttpCode(200)
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor('files'))
-    async uploadFiles(@UploadedFile() file: Express.Multer.File): Promise<FileElementResponse[]> {
+    async uploadFiles(@UploadedFile() file: Express.Multer.File, @Body() body: {folder: string}): Promise<FileElementResponse[]> {
         const saveArray: MFile[] = [];
         if (file.mimetype.includes('image')) {
             const buffer = await this.filesService.convertToAvif(file.buffer);
-            saveArray.push(new MFile({ originalname: `${file.originalname.split('.')[0]}.avif`,
+            saveArray.push(new MFile({
+                originalname: `${file.originalname.split('.')[0]}.avif`,
                 buffer
             }));
         } else {
             throw new BadRequestException(NOT_CONVERT_FILE_ERROR);
         }
-        return this.filesService.saveFiles(saveArray)
+        return this.filesService.saveFiles(saveArray, body.folder)
     }
 
     @Delete(':folder/:file')

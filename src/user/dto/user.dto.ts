@@ -23,5 +23,5 @@ export class UserDto {
 
     @IsOptional()
     @IsString()
-    period?: string;
+    avatar?: string;
 }

@@ -1,23 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { path } from 'app-root-path';
-import { format } from 'date-fns';
-import { ensureDir, remove, writeFile } from 'fs-extra';
+import { emptyDir, remove, writeFile } from 'fs-extra';
 import { FileElementResponse } from './dto/file-element.response';
 import { UPLOADS_FOLDER_NAME } from './files.constants';
 import { MFile } from './mfile.class';
 import * as sharp from 'sharp';
+import { transliterate } from 'transliteration';
 
 @Injectable()
 export class FilesService {
-    async saveFiles(files: MFile[]): Promise<FileElementResponse[]> {
-        const dateFolder = format(new Date(), 'yyyy-MM-dd');
-        const uploadFolder = `${path}/${UPLOADS_FOLDER_NAME}/${dateFolder}`;
-        await ensureDir(uploadFolder);
+    async saveFiles(files: MFile[], folder: string): Promise<FileElementResponse[]> {
+        const toLatin = (str: string) => transliterate(str).replace(' ', '_');
+        const nameFolder = toLatin(folder);
+        const uploadFolder = `${path}/${UPLOADS_FOLDER_NAME}/${nameFolder}`;
+        await emptyDir(uploadFolder);
 
         const response: FileElementResponse[] = [];
         for (const file of files) {
             await writeFile(`${uploadFolder}/${file.originalname}`, file.buffer);
-            response.push({ url: `${dateFolder}/${file.originalname}`, name: file.originalname})
+            response.push({ url: `${nameFolder}/${toLatin(file.originalname)}`, name: toLatin(file.originalname)})
         }
 
         return response;

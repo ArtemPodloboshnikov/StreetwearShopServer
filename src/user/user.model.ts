@@ -17,5 +17,8 @@ export class UserModel extends TimeStamps {
     flat: string;
 
     @prop()
-    name: string
+    name: string;
+
+    @prop()
+    avatar: string
 }
