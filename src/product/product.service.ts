@@ -22,19 +22,21 @@ export class ProductService {
         return this.productModel.findByIdAndDelete(id).exec();
     }
 
-    async getById(id: string): Promise<DocumentType<ProductModel>[]> {
+    async find(code: string):  Promise<DocumentType<ProductModel>[]> {
+        return this.productModel.find({ code: code.trim() }).exec();
+    }
+
+    async findById(id: string): Promise<DocumentType<ProductModel>[]> {
         return this.productModel.find({ _id: id.trim() }).exec();
     }
 
-    async getByParam(dto: FindProductDto): Promise<DocumentType<ProductModel[]>> {
+    async findByParam(dto: FindProductDto): Promise<DocumentType<ProductModel[]>> {
 
         const find_dto = JSON.parse(JSON.stringify(dto));
         delete find_dto.limit
         return this.productModel.aggregate([
             {
-                $match: {
-                    ...find_dto
-                }
+                $match: find_dto
             },
             {
                 $sort: {
@@ -43,6 +45,9 @@ export class ProductService {
             },
             {
                 $limit: dto.limit
+            },
+            {
+                $unset: ['createdAt', 'updatedAt', '__v']
             }
         ]).exec() as Promise<DocumentType<ProductModel[]>>;
     }

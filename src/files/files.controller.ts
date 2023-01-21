@@ -1,8 +1,8 @@
-import { BadRequestException, Body, Controller, Delete, HttpCode, Param, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { BadRequestException, Body, Controller, Delete, HttpCode, Param, Post, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/user/guards/jwt.guard';
 import { FileElementResponse } from './dto/file-element.response';
-import { DELETE_FILE_ERROR, NOT_CONVERT_FILE_ERROR } from './files.constants';
+import { DELETE_FILE_ERROR, FOLDER_MISSED, NOT_CONVERT_FILE_ERROR } from './files.constants';
 import { FilesService } from './files.service';
 import { MFile } from './mfile.class';
 
@@ -15,19 +15,27 @@ export class FilesController {
     @Post('upload')
     @HttpCode(200)
     @UseGuards(JwtAuthGuard)
-    @UseInterceptors(FileInterceptor('files'))
-    async uploadFiles(@UploadedFile() file: Express.Multer.File, @Body() body: {folder: string}): Promise<FileElementResponse[]> {
+    @UseInterceptors(FilesInterceptor('files'))
+    async uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>, @Body() {folder}: {folder: string}): Promise<FileElementResponse[]> {
+        if (!folder) throw new BadRequestException(FOLDER_MISSED);
         const saveArray: MFile[] = [];
-        if (file.mimetype.includes('image')) {
-            const buffer = await this.filesService.convertToAvif(file.buffer);
-            saveArray.push(new MFile({
-                originalname: `${file.originalname.split('.')[0]}.avif`,
-                buffer
-            }));
+        for (let i=0; i < files.length; i++) {
+            files[i].originalname = Buffer.from(files[i].originalname, 'latin1').toString('utf-8');
+            if (files[i].mimetype.includes('image')) {
+                const buffer = await this.filesService.convertToAvif(files[i].buffer);
+                saveArray.push(new MFile({
+                    originalname: `${files[i].originalname.split('.')[0]}.avif`,
+                    buffer
+                }));
+            } else {
+                throw new BadRequestException(NOT_CONVERT_FILE_ERROR);
+            }
+        }
+        if (saveArray.length) {
+            return this.filesService.saveFiles(saveArray, folder)
         } else {
             throw new BadRequestException(NOT_CONVERT_FILE_ERROR);
         }
-        return this.filesService.saveFiles(saveArray, body.folder)
     }
 
     @Delete(':folder/:file')

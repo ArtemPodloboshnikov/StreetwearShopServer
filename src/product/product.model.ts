@@ -1,4 +1,4 @@
-import { prop } from "@typegoose/typegoose";
+import { prop, PropType } from "@typegoose/typegoose";
 import { TimeStamps, Base } from "@typegoose/typegoose/lib/defaultClasses";
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document, ObjectId } from "mongoose";
@@ -99,6 +99,6 @@ export class ProductModel extends TimeStamps {
     @prop({ enum: Colors, type: String})
     colors: Colors[];
 
-    @prop({ enum: Sizes, type: String })
-    sizes: Sizes[];
+    @prop({ type: ()=> Number }, PropType.MAP)
+    sizes: Record<Sizes, number>;
 }

@@ -1,5 +1,5 @@
 import { Colors, Gender, Sizes } from "../product.model";
-import { IsString, IsInt, Min, IsEnum, IsArray } from "class-validator";
+import { IsString, IsInt, Min, IsEnum, IsArray, IsObject } from "class-validator";
 import { UNACCEPTABLE_PRICE_ERROR } from "../product.constants";
 
 export class CreateProductDto {
@@ -38,6 +38,6 @@ export class CreateProductDto {
     @IsEnum(Colors, { each: true })
     colors: Colors[];
 
-    @IsEnum(Sizes, { each: true })
-    sizes: Sizes[];
+    @IsObject()
+    sizes: Record<Sizes, number>;
 }

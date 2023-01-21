@@ -16,7 +16,7 @@ import {
 import { JwtAuthGuard } from 'src/user/guards/jwt.guard';
 import { CreateProductDto } from './dto/create-product.dto';
 import { FindProductDto } from './dto/find-product.dto';
-import { PRODUCT_NOT_FOUND_ERROR, UNIQUE_KEY_CODE_ERROR } from './product.constants';
+import { PRODUCT_NOT_FOUND_ERROR, UNIQUE_KEY_CODE_ERROR, PRODUCT_EXIST } from './product.constants';
 import { ProductModel } from './product.model';
 import { ProductService } from './product.service';
 
@@ -28,14 +28,20 @@ export class ProductController {
    @UsePipes(new ValidationPipe())
    @Post('create')
    async create(@Body() dto: CreateProductDto) {
-      return this.productService.create(dto);
+      const product = await this.productService.find(dto.code);
+      if (!product.length) {
+         return this.productService.create(dto);
+      } else {
+         throw new BadRequestException(PRODUCT_EXIST);
+      }
    }
 
    @Get(':id')
    async getById(@Param('id') id: string) {
-      const product = this.productService.getById(id);
+      const idArray = id.split('-');
+      const product = await this.productService.findById(idArray[idArray.length - 1]);
 
-      if (!product) {
+      if (!product.length) {
          throw new NotFoundException(PRODUCT_NOT_FOUND_ERROR)
       }
 
@@ -45,7 +51,7 @@ export class ProductController {
    @UseGuards(JwtAuthGuard)
    @Delete(':id')
    async delete(@Param('id') id: string) {
-      const product = this.productService.delete(id);
+      const product = await this.productService.delete(id);
 
       if (!product) {
          throw new NotFoundException(PRODUCT_NOT_FOUND_ERROR)
@@ -59,7 +65,7 @@ export class ProductController {
          throw new BadRequestException(UNIQUE_KEY_CODE_ERROR);
       }
 
-      const product = this.productService.update(id, dto);
+      const product = await this.productService.update(id, dto);
 
       if (!product) {
          throw new NotFoundException(PRODUCT_NOT_FOUND_ERROR)
@@ -72,6 +78,6 @@ export class ProductController {
    @HttpCode(200)
    @Post('find')
    async find(@Body() dto: FindProductDto) {
-      return this.productService.getByParam(dto);
+      return this.productService.findByParam(dto);
    }
 }

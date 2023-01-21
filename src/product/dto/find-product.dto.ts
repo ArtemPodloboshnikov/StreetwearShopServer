@@ -1,4 +1,4 @@
-import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsEnum, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString } from "class-validator";
 import { Colors, Gender, Sizes } from "../product.model";
 
 export class FindProductDto {
@@ -35,13 +35,14 @@ export class FindProductDto {
     gender?: Gender;
 
     @IsOptional()
-    @IsEnum(Colors)
-    color?: Colors;
+    @IsEnum(Colors, { each: true })
+    color?: Colors[];
 
     @IsOptional()
-    @IsEnum(Sizes)
-    size?: Sizes;
+    @IsObject()
+    size?: Record<Sizes, number>;
 
+    @IsNotEmpty()
     @IsNumber()
-    limit: number
+    limit!: number
 }

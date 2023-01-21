@@ -10,15 +10,16 @@ import { transliterate } from 'transliteration';
 @Injectable()
 export class FilesService {
     async saveFiles(files: MFile[], folder: string): Promise<FileElementResponse[]> {
-        const toLatin = (str: string) => transliterate(str).replace(' ', '_');
+        const toLatin = (str: string) => transliterate(str, {replace: [[' ', '_']]});
         const nameFolder = toLatin(folder);
         const uploadFolder = `${path}/${UPLOADS_FOLDER_NAME}/${nameFolder}`;
         await emptyDir(uploadFolder);
 
         const response: FileElementResponse[] = [];
         for (const file of files) {
-            await writeFile(`${uploadFolder}/${file.originalname}`, file.buffer);
-            response.push({ url: `${nameFolder}/${toLatin(file.originalname)}`, name: toLatin(file.originalname)})
+            const fileName = toLatin(file.originalname);
+            await writeFile(`${uploadFolder}/${fileName}`, file.buffer);
+            response.push({ url: `${nameFolder}/${fileName}`, name: fileName})
         }
 
         return response;
