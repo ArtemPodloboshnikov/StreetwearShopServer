@@ -66,8 +66,8 @@ export enum Gender {
 export interface ProductModel extends Base {}
 
 export class ProductModel extends TimeStamps {
-    @prop({ unique: true })
-    code: string;
+    @prop({ type: ()=> [String] }, PropType.MAP)
+    codes: Record<Sizes, string[]>;
 
     @prop({ type: () => [String]})
     images: string[];
@@ -79,10 +79,16 @@ export class ProductModel extends TimeStamps {
     model: string;
 
     @prop()
+    modelLatin: string;
+
+    @prop()
     material: string;
 
     @prop()
     country: string;
+
+    @prop()
+    description: string;
 
     @prop()
     category: string;
@@ -97,7 +103,7 @@ export class ProductModel extends TimeStamps {
     price: number;
 
     @prop({ enum: Colors, type: String})
-    colors: Colors[];
+    color: Colors;
 
     @prop({ type: ()=> Number }, PropType.MAP)
     sizes: Record<Sizes, number>;

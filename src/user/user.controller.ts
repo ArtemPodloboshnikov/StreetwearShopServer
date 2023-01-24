@@ -35,17 +35,14 @@ export class UserController {
     @Patch('update')
     @UseGuards(JwtAuthGuard)
     async updateUser(@Body() data: UserDto, @Req() request: Request) {
-        if (request.headers.authorization) {
-            const id = getIdFromToken(request.headers.authorization)
-            return this.userService.updateUser(id, data);
-        }
-
+        const id = getIdFromToken(request.headers.authorization)
+        return this.userService.updateUser(id, data);
     }
 
     @Get(':uuid')
     @UseGuards(JwtAuthGuard)
     async getUser(@Param('uuid') uuid: string, @Req() request: Request) {
-        if (uuid === 'self' && request.headers.authorization) {
+        if (uuid === 'self') {
             const id = getIdFromToken(request.headers.authorization)
             return this.userService.findById(id);
         } else {

@@ -7,6 +7,7 @@ import { TypegooseModule } from 'nestjs-typegoose';
 import { getMongoConfig } from './configs/mongo.config';
 import { UserModule } from './user/user.module';
 import { FilesModule } from './files/files.module';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { FilesModule } from './files/files.module';
     }),
     ProductModule,
     UserModule,
-    FilesModule
+    FilesModule,
+    CartModule
   ],
   controllers: [AppController],
   providers: [AppService],

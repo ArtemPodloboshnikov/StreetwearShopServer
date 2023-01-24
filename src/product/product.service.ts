@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ModelType, DocumentType } from '@typegoose/typegoose/lib/types';
-import { Types } from 'mongoose';
+import { slugify } from 'transliteration';
 import { InjectModel } from 'nestjs-typegoose';
 import { CreateProductDto } from './dto/create-product.dto';
 import { FindProductDto } from './dto/find-product.dto';
@@ -11,7 +11,7 @@ export class ProductService {
     constructor(@InjectModel(ProductModel) private readonly productModel: ModelType<ProductModel>) {}
 
     async create(dto: CreateProductDto): Promise<DocumentType<ProductModel>> {
-        return this.productModel.create(dto);
+        return this.productModel.create({...dto, modelLatin: slugify(dto.model, {lowercase: true})});
     }
 
     async update(id: string, dto: ProductModel) {
@@ -22,8 +22,8 @@ export class ProductService {
         return this.productModel.findByIdAndDelete(id).exec();
     }
 
-    async find(code: string):  Promise<DocumentType<ProductModel>[]> {
-        return this.productModel.find({ code: code.trim() }).exec();
+    async find(modelLatin: string): Promise<DocumentType<ProductModel>[]> {
+        return this.productModel.find({ modelLatin: modelLatin.trim() }).exec();
     }
 
     async findById(id: string): Promise<DocumentType<ProductModel>[]> {

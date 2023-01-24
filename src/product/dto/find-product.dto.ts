@@ -3,8 +3,8 @@ import { Colors, Gender, Sizes } from "../product.model";
 
 export class FindProductDto {
     @IsOptional()
-    @IsString()
-    code?: string;
+    @IsObject()
+    codes?: Record<Sizes, string[]>;
 
     @IsOptional()
     @IsString()
@@ -24,6 +24,10 @@ export class FindProductDto {
 
     @IsOptional()
     @IsString()
+    description?: string;
+
+    @IsOptional()
+    @IsString()
     category?: string;
 
     @IsOptional()
@@ -35,8 +39,8 @@ export class FindProductDto {
     gender?: Gender;
 
     @IsOptional()
-    @IsEnum(Colors, { each: true })
-    color?: Colors[];
+    @IsEnum(Colors)
+    color?: Colors;
 
     @IsOptional()
     @IsObject()

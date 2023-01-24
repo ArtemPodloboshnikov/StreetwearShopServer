@@ -16,7 +16,7 @@ import {
 import { JwtAuthGuard } from 'src/user/guards/jwt.guard';
 import { CreateProductDto } from './dto/create-product.dto';
 import { FindProductDto } from './dto/find-product.dto';
-import { PRODUCT_NOT_FOUND_ERROR, UNIQUE_KEY_CODE_ERROR, PRODUCT_EXIST } from './product.constants';
+import { PRODUCT_NOT_FOUND_ERROR, PRODUCT_EXIST } from './product.constants';
 import { ProductModel } from './product.model';
 import { ProductService } from './product.service';
 
@@ -28,24 +28,24 @@ export class ProductController {
    @UsePipes(new ValidationPipe())
    @Post('create')
    async create(@Body() dto: CreateProductDto) {
-      const product = await this.productService.find(dto.code);
-      if (!product.length) {
-         return this.productService.create(dto);
-      } else {
-         throw new BadRequestException(PRODUCT_EXIST);
-      }
+      return this.productService.create(dto);
+      // const product = await this.productService.find(dto.model);
+      // if (!product.length) {
+      //    return this.productService.create(dto);
+      // } else {
+      //    throw new BadRequestException(PRODUCT_EXIST);
+      // }
    }
 
    @Get(':id')
    async getById(@Param('id') id: string) {
-      const idArray = id.split('-');
-      const product = await this.productService.findById(idArray[idArray.length - 1]);
+      const product = await this.productService.findById(id);
 
       if (!product.length) {
          throw new NotFoundException(PRODUCT_NOT_FOUND_ERROR)
       }
 
-      return product;
+      return product[0];
    }
 
    @UseGuards(JwtAuthGuard)
@@ -61,10 +61,6 @@ export class ProductController {
    @UseGuards(JwtAuthGuard)
    @Patch(':id')
    async patch(@Param('id') id: string, @Body() dto: ProductModel) {
-      if (dto.code) {
-         throw new BadRequestException(UNIQUE_KEY_CODE_ERROR);
-      }
-
       const product = await this.productService.update(id, dto);
 
       if (!product) {
@@ -74,10 +70,15 @@ export class ProductController {
       return product;
    }
 
+   @Get('find/:modelLatin')
+   async find(@Param('modelLatin') modelLatin: string) {
+      return this.productService.find(modelLatin);
+   }
+
    @UsePipes(new ValidationPipe())
    @HttpCode(200)
-   @Post('find')
-   async find(@Body() dto: FindProductDto) {
+   @Post('search')
+   async findByParam(@Body() dto: FindProductDto) {
       return this.productService.findByParam(dto);
    }
 }

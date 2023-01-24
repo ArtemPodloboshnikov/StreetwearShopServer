@@ -3,8 +3,8 @@ import { IsString, IsInt, Min, IsEnum, IsArray, IsObject } from "class-validator
 import { UNACCEPTABLE_PRICE_ERROR } from "../product.constants";
 
 export class CreateProductDto {
-    @IsString()
-    code: string;
+    @IsObject()
+    codes: Record<Sizes, string[]>;
 
     @IsArray()
     @IsString({ each: true })
@@ -23,6 +23,9 @@ export class CreateProductDto {
     country: string;
 
     @IsString()
+    description: string;
+
+    @IsString()
     category: string;
 
     @IsString()
@@ -35,8 +38,8 @@ export class CreateProductDto {
     @IsInt()
     price: number;
 
-    @IsEnum(Colors, { each: true })
-    colors: Colors[];
+    @IsEnum(Colors)
+    color: Colors;
 
     @IsObject()
     sizes: Record<Sizes, number>;
