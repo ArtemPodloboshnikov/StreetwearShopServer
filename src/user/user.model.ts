@@ -19,6 +19,6 @@ export class UserModel extends TimeStamps {
     @prop()
     name: string;
 
-    @prop()
+    @prop({ default: 'default/avatar.avif' })
     avatar: string
 }

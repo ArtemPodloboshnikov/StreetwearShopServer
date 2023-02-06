@@ -1,8 +1,34 @@
-import { Type } from "@nestjs/common";
-import { prop, PropType, Ref } from "@typegoose/typegoose";
+import { prop, Ref } from "@typegoose/typegoose";
 import { TimeStamps, Base } from "@typegoose/typegoose/lib/defaultClasses";
-import { ProductModel } from "../product/product.model";
+import { ProductModel, Sizes } from "../product/product.model";
 import { UserModel } from "../user/user.model";
+
+export class TimeOrder {
+    @prop({type: String, required: true})
+    time!: String;
+
+    @prop({ref: () => ProductModel, required: true})
+    productId!: Ref<ProductModel>;
+}
+
+export class PriceOrder {
+    @prop({type: Number, min: 0, required: true})
+    price!: number;
+
+    @prop({ref: () => ProductModel, required: true})
+    productId!: Ref<ProductModel>;
+}
+
+export class SizeOrder {
+    @prop({enum: Sizes, type: String, required: true})
+    size!: Sizes
+
+    @prop({ref: () => ProductModel, required: true})
+    productId!: Ref<ProductModel>;
+
+    @prop({type: Number, required: true})
+    count!: number;
+}
 
 export interface CartModel extends Base {}
 
@@ -19,9 +45,15 @@ export class CartModel extends TimeStamps{
     @prop({ref: () => ProductModel, default: []})
     deliveredIds: Ref<ProductModel>[];
 
-    @prop({default: null})
-    period: string;
+    @prop({type: () => [TimeOrder], default: [], _id: false})
+    periods: TimeOrder[];
 
-    @prop({default: null})
-    date: Date
+    @prop({type: () => [TimeOrder], default: [], _id: false})
+    dates: TimeOrder[];
+
+    @prop({type: () => [PriceOrder], _id: false, required: true})
+    prices: PriceOrder[];
+
+    @prop({type: () => [SizeOrder], _id: false, required: true})
+    sizes: SizeOrder[];
 }

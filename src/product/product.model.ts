@@ -1,7 +1,6 @@
-import { prop, PropType } from "@typegoose/typegoose";
+import { prop, PropType, Ref } from "@typegoose/typegoose";
 import { TimeStamps, Base } from "@typegoose/typegoose/lib/defaultClasses";
-import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import { Document, ObjectId } from "mongoose";
+import { UserModel } from "../user/user.model";
 
 export enum Colors {
     RED = 'красный',
@@ -28,40 +27,26 @@ export enum Sizes {
 }
 
 export enum Gender {
-    MALE = 'мужчина',
-    FEMALE = 'женщина'
+    MALE = 'Мужчина',
+    FEMALE = 'Женщина'
 }
 
-// export type ProductDocument = ProductModel & Document
+export class Comments {
+    @prop({ref: () => UserModel, required: true})
+    userId?: Ref<UserModel>;
 
-// @Schema({ collection: 'Products'})
-// export class ProductModel {
-//     @Prop({ type: () => String})
-//     _id: ObjectId
+    @prop({type: () => UserModel})
+    user?: UserModel
 
-//     @Prop()
-//     title: string;
+    @prop({type: String, required: true})
+    text: string;
 
-//     @Prop()
-//     code: string;
+    @prop({type: Number, default: 0})
+    like: number;
 
-//     @Prop([String])
-//     images: string[];
-
-//     @Prop()
-//     brand: string;
-
-//     @Prop()
-//     price: number;
-
-//     @Prop({ enum: Colors })
-//     color: Colors;
-
-//     @Prop()
-//     size: string;
-// }
-
-// export const ProductSchema = SchemaFactory.createForClass(ProductModel);
+    @prop({type: String, default: []})
+    files: string[];
+}
 
 export interface ProductModel extends Base {}
 
@@ -107,4 +92,7 @@ export class ProductModel extends TimeStamps {
 
     @prop({ type: ()=> Number }, PropType.MAP)
     sizes: Record<Sizes, number>;
+
+    @prop({type: () => [Comments], default: []})
+    comments: Comments[];
 }

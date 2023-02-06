@@ -5,6 +5,7 @@ import { InjectModel } from 'nestjs-typegoose';
 import { CreateProductDto } from './dto/create-product.dto';
 import { FindProductDto } from './dto/find-product.dto';
 import { ProductModel } from './product.model';
+import { UserModel } from '../user/user.model';
 
 @Injectable()
 export class ProductService {
@@ -22,8 +23,51 @@ export class ProductService {
         return this.productModel.findByIdAndDelete(id).exec();
     }
 
+    async updateCountSizes(id: string, size: string, count: number) {
+        await this.productModel.updateOne({ _id: id}, {$inc: {[`sizes.${size}`]: count}});
+    }
+
     async find(modelLatin: string): Promise<DocumentType<ProductModel>[]> {
-        return this.productModel.find({ modelLatin: modelLatin.trim() }).exec();
+        // return this.productModel.find({ modelLatin: modelLatin.trim() }).exec();
+        type ProductReturn = ProductModel & {users: UserModel[]};
+        const products: ProductReturn[] =  await this.productModel.aggregate([
+            {
+                $lookup: {
+                    from: "Users",
+                    localField: "comments.userId",
+                    foreignField: "_id",
+                    as: "users"
+                }
+            },
+            { $unset: ['users.pwdHash', 'users.createdAt', 'users.updatedAt', 'users.__v', 'users.address', 'users.flat', 'users.phone'] },
+            {
+                $match: {
+                    modelLatin: modelLatin.trim()
+                }
+            }
+        ]).exec();
+
+        const deleteObjectProperty = (key: string, { [key]: deletedKey, ...others }) => others;
+
+        return products.map(product => {
+            const comments = product.comments.map(comment => {
+                const user = product.users.find(user => user._id.toString() === comment.userId?.toString())!;
+                return {
+                    text: comment.text,
+                    like: comment.like,
+                    files: comment.files,
+                    user
+                }
+            })
+
+            return {
+                ...deleteObjectProperty('users', product),
+                comments
+            }
+        }) as DocumentType<ProductModel>[]
+
+
+        // return {...deleteObjectProperty('users', products)} as DocumentType<ProductModel>[]
     }
 
     async findById(id: string): Promise<DocumentType<ProductModel>[]> {
